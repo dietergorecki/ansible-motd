@@ -1,0 +1,25 @@
+---
+- name: find <|> Find motd files to remove
+  ansible.builtin.find:
+    paths: /etc/update-motd.d/
+    file_type: any
+    excludes: "{{ motd_ubuntu_sequence }}-bluebanquise-motd"
+  register: motd_files
+  when: motd_remove_default
+
+- name: file <|> Remove default OS motd
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: absent
+    follow: false
+    force: true
+  loop: "{{ motd_files.files }}"
+  when: motd_remove_default
+
+- name: copy <|> Deploy motd
+  ansible.builtin.copy:
+    dest: "/etc/update-motd.d/{{ motd_ubuntu_sequence }}-bluebanquise-motd"
+    content: "{{ motd }}"
+    owner: root
+    group: root
+    mode: 0755

@@ -1,0 +1,41 @@
+---
+- name: copy <|> Deploy motd
+  ansible.builtin.copy:
+    dest: "/etc/motd"
+    content: "{{ motd }}"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create motd.d
+  file:
+    dest: /etc/motd.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when: motd_remove_default
+
+- name: Disable cockpit motd message
+  file:
+    src: /dev/null
+    dest: /etc/motd.d/cockpit
+    state: link
+    force: yes
+  when: motd_remove_default
+
+- name: Disable cockpit issue message
+  file:
+    src: /dev/null
+    dest: /etc/issue.d/cockpit.issue
+    state: link
+    force: yes
+  when: motd_remove_default
+
+- name: Disable RHEL insights motd message
+  file:
+    src: /dev/null
+    dest: /etc/motd.d/insights-client
+    state: link
+    force: yes
+  when: motd_remove_default
